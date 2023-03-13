@@ -15,7 +15,7 @@ const sequelize = new Sequelize('eCommerce_db', 'root', '32289216', {
 async function test(){
   try {
     await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
+    console.log('Connection has been established successfully broh.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
