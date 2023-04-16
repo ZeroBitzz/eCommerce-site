@@ -1,32 +1,80 @@
-const router = require('express').Router();
+const express = require('express');
+const router = express.Router();
 const { Category, Product } = require('../../models');
 
-// The `/api/categories` endpoint
-
-router.get('/', async (req, res) => {
+router.get('/api/categories', async (req, res) => {
   try {
     const categoryData = await Category.findAll();
     res.status(200).json(categoryData);
   } catch (err) {
-    res.status(500).json(err);
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 });
 
-router.get('/:id', (req, res) => {
-  // find one category by its `id` value
-  // be sure to include its associated Products
+router.get('/api/categories/:id', async (req, res) => {
+  try {
+    const categoryData = await Category.findByPk(req.params.id, {
+      include: [Product]
+    });
+
+    if (!categoryData) {
+      res.status(404).json({ message: 'Category not found' });
+    } else {
+      res.status(200).json(categoryData);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
 });
 
-router.post('/', (req, res) => {
-  // create a new category
+router.post('/api/categories', async (req, res) => {
+  try {
+    const categoryData = await Category.create(req.body);
+    res.status(201).json(categoryData);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: 'Bad request' });
+  }
 });
 
-router.put('/:id', (req, res) => {
-  // update a category by its `id` value
+router.put('/api/categories/:id', async (req, res) => {
+  try {
+    const categoryData = await Category.findByPk(req.params.id);
+    if (!categoryData) {
+      res.status(404).json({ message: 'Category not found' });
+    } else {
+      await Category.update(req.body, {
+        where: {
+          id: req.params.id
+        }
+      });
+      res.status(200).json({ message: 'Category updated' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: 'Bad request' });
+  }
 });
 
-router.delete('/:id', (req, res) => {
-  // delete a category by its `id` value
+router.delete('/api/categories/:id', async (req, res) => {
+  try {
+    const categoryData = await Category.findByPk(req.params.id);
+    if (!categoryData) {
+      res.status(404).json({ message: 'Category not found' });
+    } else {
+      await Category.destroy({
+        where: {
+          id: req.params.id
+        }
+      });
+      res.status(200).json({ message: 'Category deleted' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
 });
 
 module.exports = router;
